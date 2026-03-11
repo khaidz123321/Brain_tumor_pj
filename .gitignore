@@ -1,0 +1,11 @@
+# Bỏ qua dữ liệu ảnh
+dataset/
+dataset.zip
+
+# Bỏ qua file mô hình quá nặng (Sẽ có cách xử lý riêng khi deploy)
+pred/*.h5
+pred/*.keras
+
+# Bỏ qua các file rác của Python và môi trường ảo
+__pycache__/
+.venv/
