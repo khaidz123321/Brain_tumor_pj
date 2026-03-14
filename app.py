@@ -15,24 +15,24 @@ st.set_page_config(page_title="AI Khám U Não", page_icon="🧠", layout="cente
 # 2. Xây dựng cấu trúc và Tải trọng số (Bypass Keras bug)
 @st.cache_resource
 def load_brain_model():
-    model_path = os.path.join("pred", "BrainTumor_ResNet50_Final.keras") 
+    model_path = "Final.keras" # Đảm bảo file Final.keras để chung thư mục với app.py
     
     if not os.path.exists(model_path):
-        st.error(f"Không tìm thấy file mô hình tại: {model_path}")
+        st.error(f"❌ Không tìm thấy file mô hình tại: {model_path}")
         st.stop()
         
-    # Bước A: Dựng lại CHÍNH XÁC "khung xương" giống hệt file main.ipynb của bạn
+    # Bước A: Tự dựng khung xương CHUẨN XÁC theo main.ipynb
     base_model = ResNet50(weights=None, include_top=False, input_shape=(224, 224, 3))
     
     model = Sequential([
         base_model,
-        Flatten(), # Vẫn giữ Flatten vì bạn đã train với nó
+        Flatten(), # Bắt buộc phải có Flatten vì file train của bạn dùng nó
         Dense(512, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01)),
         Dropout(0.5),
         Dense(2, activation='softmax')
     ])
     
-    # Bước B: Chỉ nạp "trọng số" (Cách này né được hoàn toàn lỗi List Object của Keras)
+    # Bước B: Chỉ nạp trọng số để lách lỗi đọc sai cấu trúc của Keras
     model.load_weights(model_path)
     
     return model
@@ -41,8 +41,8 @@ def load_brain_model():
 model = load_brain_model()
 
 # 3. Giao diện chính
-st.title("CDUNAO")
-st.write("Sức mạnh bởi ResNet50")
+st.title("🧠 Ứng dụng AI Chẩn đoán U Não (MRI)")
+st.write("Sức mạnh bởi ResNet50 (Data Augmentation Version)")
 st.divider()
 
 # 4. Khu vực tải ảnh lên
@@ -52,12 +52,12 @@ if uploaded_file is not None:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Ảnh chụp MRI")
+        st.subheader("🖼️ Ảnh chụp MRI")
         image = Image.open(uploaded_file)
         st.image(image, use_container_width=True)
 
     with col2:
-        st.subheader("Kết quả phân tích")
+        st.subheader("🔬 Kết quả phân tích")
         with st.spinner('AI đang quét...'):
             # Tiền xử lý ảnh ĐÚNG CHUẨN ResNet50
             img_array = np.array(image.convert('RGB'))
@@ -72,14 +72,14 @@ if uploaded_file is not None:
 
             # Hiển thị kết quả
             if prob_yes > 0.5:
-                st.error("CẢNH BÁO: Phát hiện dấu hiệu U não!")
+                st.error("🚨 CẢNH BÁO: Phát hiện dấu hiệu U não!")
                 st.write(f"**Độ tin cậy:** {prob_yes * 100:.2f}%")
                 st.progress(float(prob_yes))
             else:
-                st.success("AN TOÀN: Không phát hiện khối u.")
+                st.success("✅ AN TOÀN: Không phát hiện khối u.")
                 st.write(f"**Độ tin cậy:** {prob_no * 100:.2f}%")
                 st.progress(float(prob_no))
                 
     st.divider()
-    if st.button("Chẩn đoán ảnh mới"):
+    if st.button("🔄 Chẩn đoán ảnh mới"):
         st.rerun()

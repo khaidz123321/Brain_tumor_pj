@@ -9,3 +9,6 @@ pred/*.keras
 # Bỏ qua các file rác của Python và môi trường ảo
 __pycache__/
 .venv/
+
+# Bỏ qua file mô hình AI quá nặng
+*.keras
